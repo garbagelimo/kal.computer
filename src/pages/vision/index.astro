@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const images = Object.values(
+  import.meta.glob('../../assets/vision/*.{png,jpg,jpeg,webp,avif}', {
+    eager: true,
+    as: 'url',
+  })
+).sort((a, b) => a.localeCompare(b));
+---
+
+<BaseLayout title="Vision" description="A visual dump of references and experiments.">
+  <section class="panel panel--accent">
+    <h1>Vision board</h1>
+    <p class="tagline">This is what my mind feels like.</p>
+  </section>
+
+  <section class="panel panel--raw vision-grid" style="margin-top: 16px;">
+    {images.length === 0 ? (
+      <p class="tagline">No images yet. Add files in src/assets/vision.</p>
+    ) : (
+      images.map((src) => (
+        <button class="vision-item" type="button" data-full={src} aria-label="Open image">
+          <img src={src} alt="" loading="lazy" />
+        </button>
+      ))
+    )}
+  </section>
+
+  <div class="vision-modal" id="vision-modal" aria-hidden="true" role="dialog" aria-label="Image preview">
+    <div class="vision-modal__content">
+      <button class="vision-modal__close" type="button" aria-label="Close image preview">✕</button>
+      <img id="vision-modal-image" alt="" />
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  const modal = document.getElementById('vision-modal');
+  const modalImage = document.getElementById('vision-modal-image');
+  const closeButton = modal?.querySelector('.vision-modal__close');
+  const openModal = (src) => {
+    if (!modal || !modalImage) return;
+    modalImage.src = src;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeModal = () => {
+    if (!modal || !modalImage) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    modalImage.src = '';
+    document.body.style.overflow = '';
+  };
+  document.querySelectorAll('.vision-item').forEach((button) => {
+    button.addEventListener('click', () => {
+      const src = button.getAttribute('data-full');
+      if (src) openModal(src);
+    });
+  });
+  modal?.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+  });
+  closeButton?.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal?.classList.contains('is-open')) {
+      closeModal();
+    }
+  });
+</script>

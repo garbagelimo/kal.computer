@@ -1,17 +1,110 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EntryCard from '../components/EntryCard.astro';
+import { getCollection } from 'astro:content';
 
+const allPosts = await getCollection('blog');
+const posts = allPosts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const allProjects = await getCollection('projects');
+const projects = allProjects
+  .sort((a, b) => b.data.year - a.data.year)
+  .slice(0, 3);
+
+const allLinks = await getCollection('links');
+const links = allLinks
+  .sort((a, b) => {
+    const scoreA = (a.data.highlight ? 1 : 0) + (a.data.pubDate ? 1 : 0);
+    const scoreB = (b.data.highlight ? 1 : 0) + (b.data.pubDate ? 1 : 0);
+    return scoreB - scoreA;
+  })
+  .slice(0, 3);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Home" description="Kal's portfolio, blog, and link board.">
+  <section class="panel panel--accent hero">
+    <h1>Signal board for the things I build, learn, and keep.</h1>
+    <p>
+      kal.computer is a fast, static-first hub for projects, writing, and the
+      links I reach for. Built with a neo-imageboard layout: crisp borders,
+      monospace metadata, and a little grit.
+    </p>
+    <div class="pill-row">
+      <span class="pill">portfolio + notes</span>
+      <span class="pill">static, low JS</span>
+      <span class="pill">hand-styled UI</span>
+    </div>
+  </section>
+
+  <div class="content-grid">
+    <section class="panel">
+      <div class="section-header">
+        <h2>Projects</h2>
+        <a href="/projects">view board</a>
+      </div>
+      <div class="grid">
+        {projects.map((project) => (
+          <EntryCard
+            title={project.data.title}
+            href={`/projects#${project.slug}`}
+            eyebrow={`${project.data.year} • ${project.data.status}`}
+            summary={project.data.description}
+            tags={project.data.tags}
+            meta={project.data.role}
+          />
+        ))}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-header">
+        <h2>Now</h2>
+        <a href="/blog">recent notes</a>
+      </div>
+      <p class="tagline">
+        Currently building kal.computer. Fast pages, tactile UI, and a link
+        board that stays useful.
+      </p>
+      <div class="section-header" style="margin-top: 24px;">
+        <h2>Hot links</h2>
+        <a href="/links">open board</a>
+      </div>
+      <div class="grid">
+        {links.map((link) => (
+          <EntryCard
+            title={link.data.title}
+            href={link.data.url}
+            external
+            eyebrow={link.data.category}
+            summary={link.data.description}
+          />
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top: 28px;">
+    <div class="section-header">
+      <h2>Latest writing</h2>
+      <a href="/blog">read archive</a>
+    </div>
+    <div class="grid">
+      {posts.map((post) => (
+        <EntryCard
+          title={post.data.title}
+          href={`/blog/${post.slug}`}
+          eyebrow={post.data.pubDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+          summary={post.data.description}
+          tags={post.data.tags}
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

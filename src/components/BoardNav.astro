@@ -1,0 +1,22 @@
+---
+const { items = [], currentPath = '/' } = Astro.props;
+const normalize = (path) => (path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path);
+const current = normalize(currentPath);
+---
+
+<nav class="board-nav" aria-label="Primary">
+  <span class="board-nav__label">&gt;&gt;</span>
+  <ul class="board-nav__list">
+    {items.map((item) => {
+      const href = normalize(item.href);
+      const isActive = href === current;
+      return (
+        <li>
+          <a class={isActive ? 'active' : ''} href={item.href}>
+            {item.label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

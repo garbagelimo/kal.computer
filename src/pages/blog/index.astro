@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="Blog" description="Writing, stories and rants.">
+  <section class="panel panel--accent">
+    <h1>Blog log</h1>
+    <p class="tagline">I like to post. Here are stories, investigations and musings.</p>
+  </section>
+
+  <section class="panel" style="margin-top: 24px;">
+    <div class="grid">
+      {posts.map((post) => (
+        <EntryCard
+          title={post.data.title}
+          href={`/blog/${post.slug}`}
+          eyebrow={post.data.pubDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+          summary={post.data.description}
+          tags={post.data.tags}
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

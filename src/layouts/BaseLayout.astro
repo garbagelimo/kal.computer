@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+import spaceGrotesk700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2';
+import spaceMono400 from '@fontsource/space-mono/files/space-mono-latin-400-normal.woff2';
+import BoardNav from '../components/BoardNav.astro';
+
+const {
+  title,
+  description = 'Personal node for projects, writing, and links.',
+} = Astro.props;
+
+const pageTitle = title ? `${title} • kal.computer` : 'kal.computer';
+const buildStamp = new Date().toISOString().slice(0, 10);
+const navItems = [
+  { label: 'index', href: '/' },
+  { label: 'projects', href: '/projects' },
+  { label: 'blog', href: '/blog' },
+  { label: 'links', href: '/links' },
+  { label: 'vision', href: '/vision' },
+];
+const currentPath = Astro.url.pathname;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2eee2" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1011" />
+    <title>{pageTitle}</title>
+    <link rel="preload" as="font" type="font/woff2" href={spaceGrotesk700} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={spaceMono400} crossorigin />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta name="twitter:card" content="summary" />
+
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('theme');
+        if (stored) {
+          document.documentElement.dataset.theme = stored;
+          return;
+        }
+        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = prefersDark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="site">
+      <header class="site-header">
+        <div class="mast">
+          <div>
+            <a class="site-title" href="/">kal.computer</a>
+            <div class="tagline">can we make the web fun again?</div>
+          </div>
+          <div class="mast-meta">
+            <div class="status-strip">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span>build {buildStamp}</span>
+              <span>utc-05</span>
+            </div>
+            <button class="theme-toggle" type="button" aria-pressed="false" id="theme-toggle">
+              <span class="theme-toggle__label">dark</span>
+              <span class="theme-toggle__indicator" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <BoardNav items={navItems} currentPath={currentPath} />
+      </header>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer class="footer">
+        <span>kal.computer • personal node</span>
+        <span>hand-built with Astro</span>
+        <span>no trackers · just text</span>
+      </footer>
+    </div>
+
+    <script is:inline>
+      const button = document.getElementById('theme-toggle');
+      const label = button?.querySelector('.theme-toggle__label');
+      const setTheme = (theme) => {
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem('theme', theme);
+        if (button) button.setAttribute('aria-pressed', theme === 'dark');
+        if (label) label.textContent = theme === 'dark' ? 'light' : 'dark';
+      };
+      if (button) {
+        const current = document.documentElement.dataset.theme || 'light';
+        setTheme(current);
+        button.addEventListener('click', () => {
+          const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+          setTheme(next);
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { getCollection } from 'astro:content';
+
+const links = await getCollection('links');
+const grouped = links.reduce((acc, link) => {
+  const key = link.data.category || 'misc';
+  acc[key] = acc[key] ?? [];
+  acc[key].push(link);
+  return acc;
+}, {});
+
+const categories = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+---
+
+<BaseLayout title="Links" description="A board of links worth keeping.">
+  <section class="panel panel--accent">
+    <h1>Link board</h1>
+    <p class="tagline">Small notes on things I keep returning to.</p>
+  </section>
+
+  {categories.map((category) => (
+    <section class="panel" style="margin-top: 24px;">
+      <div class="section-header">
+        <h2>{category}</h2>
+        <span class="tagline">{grouped[category].length} entries</span>
+      </div>
+      <div class="grid">
+        {grouped[category].map((link) => (
+          <EntryCard
+            title={link.data.title}
+            href={link.data.url}
+            external
+            eyebrow={link.data.pubDate
+              ? link.data.pubDate.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })
+              : 'undated'}
+            summary={link.data.description}
+            tags={[`#${link.data.category}`]}
+          />
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

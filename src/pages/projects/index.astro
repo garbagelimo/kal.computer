@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => b.data.year - a.data.year);
+---
+
+<BaseLayout title="Projects" description="Selected builds and experiments.">
+  <section class="panel panel--accent">
+    <h1>Project board</h1>
+    <p class="tagline">Active experiments and archived work.</p>
+  </section>
+
+  <section class="panel" style="margin-top: 24px;">
+    <div class="grid">
+      {projects.map((project) => (
+        <EntryCard
+          title={project.data.title}
+          href={project.data.url ?? `/projects#${project.slug}`}
+          external={Boolean(project.data.url)}
+          eyebrow={`${project.data.year} • ${project.data.status}`}
+          summary={project.data.description}
+          tags={project.data.tags}
+          meta={project.data.role}
+        />
+      ))}
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top: 24px;">
+    <div class="section-header">
+      <h2>Index</h2>
+      <span class="tagline">quick notes and detail blurbs</span>
+    </div>
+    <div class="grid">
+      {projects.map((project) => (
+        <article class="entry-card" id={project.slug}>
+          <div class="entry-card__link">
+            <span class="entry-card__eyebrow">{project.data.status}</span>
+            <h3>{project.data.title}</h3>
+            <p>{project.data.description}</p>
+            <span class="meta-line">{project.data.year}</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
