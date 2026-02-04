@@ -3,16 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import EntryCard from '../components/EntryCard.astro';
 import { getCollection } from 'astro:content';
 
-const allPosts = await getCollection('blog');
-const posts = allPosts
-  .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
-
 const allProjects = await getCollection('projects');
 const projects = allProjects
   .sort((a, b) => b.data.year - a.data.year)
-  .slice(0, 3);
+  .slice(0, 4);
 
 const allLinks = await getCollection('links');
 const links = allLinks
@@ -21,16 +15,42 @@ const links = allLinks
     const scoreB = (b.data.highlight ? 1 : 0) + (b.data.pubDate ? 1 : 0);
     return scoreB - scoreA;
   })
-  .slice(0, 3);
+  .slice(0, 4);
+
+const resumeTiles = [
+  {
+    title: 'Design systems + brand',
+    eyebrow: 'design',
+    summary: 'Adobe CC (PS, AI, ID), Figma, typography, layout, visual direction.',
+  },
+  {
+    title: 'Web + product build',
+    eyebrow: 'web',
+    summary: 'Astro, React, HTML/CSS, UI engineering, performance-first builds.',
+  },
+  {
+    title: 'Marketing + growth',
+    eyebrow: 'marketing',
+    summary: 'Google Ads, SEO strategy, launch plans, positioning + messaging.',
+  },
+  {
+    title: 'Research + insights',
+    eyebrow: 'strategy',
+    summary: 'Competitive scans, user interviews, concept testing, roadmap shaping.',
+  },
+  {
+    title: 'Content + copy',
+    eyebrow: 'writing',
+    summary: 'Brand voice, web copy, product narratives, editorial workflows.',
+  },
+];
 ---
 
 <BaseLayout title="Home" description="Kal's portfolio, blog, and link board.">
   <section class="panel panel--accent hero">
-    <h1>Signal board for the things I build, learn, and keep.</h1>
+    <h1>computer motivation webzone</h1>
     <p>
-      kal.computer is a fast, static-first hub for projects, writing, and the
-      links I reach for. Built with a neo-imageboard layout: crisp borders,
-      monospace metadata, and a little grit.
+      using the internet so you don’t have to.
     </p>
     <div class="pill-row">
       <span class="pill">portfolio + notes</span>
@@ -40,71 +60,64 @@ const links = allLinks
   </section>
 
   <div class="content-grid">
-    <section class="panel">
-      <div class="section-header">
-        <h2>Projects</h2>
-        <a href="/projects">view board</a>
-      </div>
-      <div class="grid">
-        {projects.map((project) => (
-          <EntryCard
-            title={project.data.title}
-            href={`/projects#${project.slug}`}
-            eyebrow={`${project.data.year} • ${project.data.status}`}
-            summary={project.data.description}
-            tags={project.data.tags}
-            meta={project.data.role}
-          />
-        ))}
-      </div>
-    </section>
+    <div class="stacked-panels">
+      <section class="panel">
+        <div class="section-header">
+          <h2>Projects</h2>
+          <a href="/projects">VIEW ALL</a>
+        </div>
+        <div class="grid">
+          {projects.map((project) => (
+            <EntryCard
+              title={project.data.title}
+              href={`/projects#${project.slug}`}
+              eyebrow={`${project.data.year} • ${project.data.status}`}
+              summary={project.data.description}
+              tags={project.data.tags}
+              meta={project.data.role}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section class="panel panel--stretch" style="margin-top: 20px;">
+        <div class="section-header">
+          <h2>Links</h2>
+          <a href="/links">VIEW ALL</a>
+        </div>
+        <div class="grid">
+          {links.map((link) => (
+            <EntryCard
+              title={link.data.title}
+              href={link.data.url}
+              external
+              eyebrow={link.data.category}
+              summary={link.data.description}
+            />
+          ))}
+        </div>
+      </section>
+    </div>
 
     <section class="panel">
       <div class="section-header">
-        <h2>Now</h2>
-        <a href="/blog">recent notes</a>
+        <h2>About</h2>
       </div>
       <p class="tagline">
-        Currently building kal.computer. Fast pages, tactile UI, and a link
-        board that stays useful.
+        long time computer guy.
       </p>
-      <div class="section-header" style="margin-top: 24px;">
-        <h2>Hot links</h2>
-        <a href="/links">open board</a>
-      </div>
       <div class="grid">
-        {links.map((link) => (
+        {resumeTiles.map((tile) => (
           <EntryCard
-            title={link.data.title}
-            href={link.data.url}
-            external
-            eyebrow={link.data.category}
-            summary={link.data.description}
+            title={tile.title}
+            href={tile.href ?? '/projects'}
+            eyebrow={tile.eyebrow}
+            summary={tile.summary}
+            external={tile.external}
           />
         ))}
       </div>
     </section>
   </div>
 
-  <section class="panel" style="margin-top: 28px;">
-    <div class="section-header">
-      <h2>Latest writing</h2>
-      <a href="/blog">read archive</a>
-    </div>
-    <div class="grid">
-      {posts.map((post) => (
-        <EntryCard
-          title={post.data.title}
-          href={`/blog/${post.slug}`}
-          eyebrow={post.data.pubDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}
-          summary={post.data.description}
-          tags={post.data.tags}
-        />
-      ))}
-    </div>
-  </section>
 </BaseLayout>

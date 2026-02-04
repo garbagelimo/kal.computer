@@ -10,12 +10,14 @@ const images = Object.values(
 ---
 
 <BaseLayout title="Vision" description="A visual dump of references and experiments.">
-  <section class="panel panel--accent">
-    <h1>Vision board</h1>
-    <p class="tagline">This is what my mind feels like.</p>
+  <section class="panel panel--accent panel--tight">
+    <div class="section-header">
+      <h1>vision boarrd</h1>
+      <button class="vision-shuffle" type="button">shuffle</button>
+    </div>
   </section>
 
-  <section class="panel panel--raw vision-grid" style="margin-top: 16px;">
+  <section class="panel panel--raw vision-grid" id="vision-grid" style="margin-top: 16px;">
     {images.length === 0 ? (
       <p class="tagline">No images yet. Add files in src/assets/vision.</p>
     ) : (
@@ -36,6 +38,24 @@ const images = Object.values(
 </BaseLayout>
 
 <script is:inline>
+  const shuffle = (items) => {
+    for (let i = items.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+  };
+
+  const shuffleButton = document.querySelector('.vision-shuffle');
+  const grid = document.getElementById('vision-grid');
+
+  if (shuffleButton && grid) {
+    shuffleButton.addEventListener('click', () => {
+      const items = Array.from(grid.querySelectorAll('.vision-item'));
+      shuffle(items).forEach((item) => grid.appendChild(item));
+    });
+  }
+
   const modal = document.getElementById('vision-modal');
   const modalImage = document.getElementById('vision-modal-image');
   const closeButton = modal?.querySelector('.vision-modal__close');

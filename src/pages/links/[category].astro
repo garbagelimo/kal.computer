@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const links = await getCollection('links');
+  const categories = Array.from(new Set(links.map((link) => link.data.category)));
+  return categories.map((category) => ({
+    params: { category },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const links = (await getCollection('links'))
+  .filter((link) => link.data.category === category)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<BaseLayout title={`Links • ${category}`} description={`Links in ${category}.`}>
+  <section class="panel panel--accent panel--tight">
+    <div class="section-header">
+      <h1>{category}</h1>
+      <a href="/links">back to links</a>
+    </div>
+  </section>
+
+  <section class="panel panel--raw link-directory" style="margin-top: 16px;">
+    <div class="link-row link-row--head">
+      <span class="link-cell">title</span>
+      <span class="link-cell">link</span>
+      <span class="link-cell">notes</span>
+    </div>
+    {links.map((link) => (
+      <div class="link-row">
+        <span class="link-cell">{link.data.title}</span>
+        <span class="link-cell">
+          <a href={link.data.url} target="_blank" rel="noreferrer noopener">
+            {link.data.url}
+          </a>
+        </span>
+        <span class="link-cell">{link.data.description}</span>
+      </div>
+    ))}
+  </section>
+</BaseLayout>

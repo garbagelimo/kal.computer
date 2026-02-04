@@ -12,19 +12,34 @@ const grouped = links.reduce((acc, link) => {
 }, {});
 
 const categories = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+const toCategoryId = (category) =>
+  category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const toCategoryHref = (category) => `/links/${encodeURIComponent(category)}`;
 ---
 
 <BaseLayout title="Links" description="A board of links worth keeping.">
   <section class="panel panel--accent">
     <h1>Link board</h1>
     <p class="tagline">Small notes on things I keep returning to.</p>
+    <div class="pill-row">
+      {categories.map((category) => (
+        <a class="pill" href={`#${toCategoryId(category)}`}>
+          {category}
+        </a>
+      ))}
+    </div>
   </section>
 
   {categories.map((category) => (
-    <section class="panel" style="margin-top: 24px;">
+    <section class="panel" style="margin-top: 24px;" id={toCategoryId(category)}>
       <div class="section-header">
-        <h2>{category}</h2>
-        <span class="tagline">{grouped[category].length} entries</span>
+        <h2 class="link-category">
+          <a href={toCategoryHref(category)}>{category}</a>
+        </h2>
+        <div class="link-category-meta">
+          <span class="link-count">{grouped[category].length} entries</span>
+          <a href={toCategoryHref(category)}>view all</a>
+        </div>
       </div>
       <div class="grid">
         {grouped[category].map((link) => (

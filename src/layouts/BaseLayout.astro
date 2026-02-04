@@ -3,6 +3,7 @@ import '../styles/global.css';
 import spaceGrotesk700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2';
 import spaceMono400 from '@fontsource/space-mono/files/space-mono-latin-400-normal.woff2';
 import BoardNav from '../components/BoardNav.astro';
+import taglines from '../data/taglines.json';
 
 const {
   title,
@@ -59,7 +60,9 @@ const currentPath = Astro.url.pathname;
         <div class="mast">
           <div>
             <a class="site-title" href="/">kal.computer</a>
-            <div class="tagline">can we make the web fun again?</div>
+            <div class="tagline" id="site-tagline" data-taglines={JSON.stringify(taglines)}>
+              {taglines[0]}
+            </div>
           </div>
           <div class="mast-meta">
             <div class="status-strip">
@@ -103,6 +106,21 @@ const currentPath = Astro.url.pathname;
           const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
           setTheme(next);
         });
+      }
+    </script>
+
+    <script is:inline>
+      const taglineEl = document.getElementById('site-tagline');
+      if (taglineEl) {
+        try {
+          const options = JSON.parse(taglineEl.dataset.taglines || '[]');
+          if (options.length > 0) {
+            const pick = options[Math.floor(Math.random() * options.length)];
+            taglineEl.textContent = pick;
+          }
+        } catch {
+          // no-op
+        }
       }
     </script>
   </body>
